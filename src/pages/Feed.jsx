@@ -7,86 +7,97 @@ import FloatingActionButton from '../components/ui/FloatingActionButton';
 import { useQuery } from '@apollo/client/react';
 import ErrorMessage from '../components/ui/ErrorMessage';
 import { GET_FEED } from '../../database/graphql/query/feed.js';
+import Dropdown from '../components/ui/Dropdown';
 
 function Feed({ onNavigateToNewPost, onNavigateToProfile, onLogout }) {
-  const [activeItem, setActiveItem] = useState('feed');
-  const [workouts, setWorkouts] = useState([]);
-  const { loading, error, data } = useQuery(GET_FEED);
+	const [activeItem, setActiveItem] = useState('feed');
+	const [workouts, setWorkouts] = useState([]);
+	const { loading, error, data } = useQuery(GET_FEED);
 
-  useEffect(() => {
-    const fetchWorkouts = async () => {
-      const normalizedWorkouts = data.allFeeds.map((item) => {
-        if (item.workout) {
-          return {
-            id: item.id,
-            ...item.workout,
-          };
-        }
-        return item;
-      });
-      setWorkouts(normalizedWorkouts);
-    };
+	useEffect(() => {
+		if (!data?.allFeeds) return;
 
-    fetchWorkouts();
-  }, [data]);
+		const fetchWorkouts = async () => {
+			const normalizedWorkouts = data.allFeeds.map((item) => {
+				if (item.workout) {
+					return {
+						id: item.id,
+						...item.workout,
+					};
+				}
+				return item;
+			});
+			setWorkouts(normalizedWorkouts);
+		};
 
-  const handleMenuClick = (itemId) => {
-    setActiveItem(itemId);
-    console.log('Menu clicked:', itemId);
+		fetchWorkouts();
+	}, [data]);
 
-    if (itemId === 'profile') {
-      onNavigateToProfile?.();
-    } else if (itemId === 'logout') {
-      onLogout?.();
-    }
-  };
+	const handleMenuClick = (itemId) => {
+		setActiveItem(itemId);
+		console.log('Menu clicked:', itemId);
 
-  console.log(error);
+		if (itemId === 'profile') {
+			onNavigateToProfile?.();
+		} else if (itemId === 'logout') {
+			onLogout?.();
+		}
+	};
 
-  return (
-    <div className='min-h-screen bg-gray-50'>
-      <Header />
+	console.log(error);
 
-      <div className='md:flex'>
-        {/* Desktop Sidebar */}
-        <Sidebar activeItem={activeItem} onItemClick={handleMenuClick} />
+	return (
+		<div className='min-h-screen bg-gray-50'>
+			<Header />
 
-        {/* Main Content */}
-        <main className='flex-1 p-4 md:p-6 pb-20 md:pb-6'>
-          <div className='max-w-7xl mx-auto'>
-            <h1 className='text-2xl font-bold text-brand-graphite mb-6 hidden md:block'>
-              Feed de Treinos
-            </h1>
+			<div className='md:flex'>
+				{/* Desktop Sidebar */}
+				<Sidebar activeItem={activeItem} onItemClick={handleMenuClick} />
 
-            {/* Loading State */}
-            {loading && (
-              <div className='flex justify-center items-center py-8'>
-                <div className='text-gray-500'>Carregando treinos...</div>
-              </div>
-            )}
+				{/* Main Content */}
+				<main className='flex-1 p-4 md:p-6 pb-20 md:pb-6'>
+					<div className='max-w-7xl mx-auto'>
+						<h1 className='text-2xl font-bold text-brand-graphite mb-6 hidden md:block'>
+							Feed de Treinos
+						</h1>
 
-            {/* Error State */}
-            {error && <ErrorMessage message='Erro ao carregar treinos' error={error.message} />}
+						<Dropdown
+							options={[]}
+							value={''}
+							onChange={() => {}}
+							placeholder='Todos'
+							className='mb-6'
+						/>
 
-            {/* Workout Cards Grid */}
-            {!loading && !error && (
-              <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6'>
-                {workouts.map((workout) => (
-                  <WorkoutCard key={workout.id} workout={workout} />
-                ))}
-              </div>
-            )}
-          </div>
-        </main>
-      </div>
+						{/* Loading State */}
+						{loading && (
+							<div className='flex justify-center items-center py-8'>
+								<div className='text-gray-500'>Carregando treinos...</div>
+							</div>
+						)}
 
-      {/* Mobile Bottom Navigation */}
-      <BottomNavigation activeItem={activeItem} onItemClick={handleMenuClick} />
+						{/* Error State */}
+						{error && <ErrorMessage message='Erro ao carregar treinos' error={error.message} />}
 
-      {/* Floating Action Button */}
-      <FloatingActionButton onClick={onNavigateToNewPost} />
-    </div>
-  );
+						{/* Workout Cards Grid */}
+						{!loading && !error && (
+							<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6'>
+								{workouts.map((workout) => (
+									<WorkoutCard key={workout.id} workout={workout} />
+								))}
+							</div>
+						)}
+					</div>
+				</main>
+			</div>
+
+			{/* Mobile Bottom Navigation */}
+			<BottomNavigation activeItem={activeItem} onItemClick={handleMenuClick} />
+
+			{/* Floating Action Button */}
+			<FloatingActionButton onClick={onNavigateToNewPost} />
+		</div>
+	);
 }
 
 export default Feed;
