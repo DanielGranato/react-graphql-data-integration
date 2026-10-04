@@ -6,9 +6,8 @@ import WorkoutCard from '../components/ui/WorkoutCard';
 import FloatingActionButton from '../components/ui/FloatingActionButton';
 import { useQuery } from '@apollo/client/react';
 import ErrorMessage from '../components/ui/ErrorMessage';
-import { GET_FEED } from '../../database/graphql/query/feed.js';
+import { GET_FEED, GET_FEED_BY_CATEGORY } from '../../database/graphql/query/feed.js';
 import Dropdown from '../components/ui/Dropdown';
-import { GET_FEED_BY_CATEGORY } from '../../database/graphql/query/feed.js';
 
 function Feed({ onNavigateToNewPost, onNavigateToProfile, onLogout }) {
 	const [activeItem, setActiveItem] = useState('feed');
@@ -47,6 +46,8 @@ function Feed({ onNavigateToNewPost, onNavigateToProfile, onLogout }) {
 			onLogout?.();
 		}
 	};
+
+	const handleDelete = (id) => {};
 
 	const categoryOptions = [
 		{ value: '', label: 'Todos' },
@@ -91,7 +92,7 @@ function Feed({ onNavigateToNewPost, onNavigateToProfile, onLogout }) {
 						{!loading && !error && (
 							<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6'>
 								{workouts.map((workout) => (
-									<WorkoutCard key={workout.id} workout={workout} />
+									<WorkoutCard key={workout.id} workout={workout} onDelete={handleDelete} />
 								))}
 							</div>
 						)}
