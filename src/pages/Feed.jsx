@@ -4,10 +4,11 @@ import Sidebar from '../components/layout/Sidebar';
 import BottomNavigation from '../components/layout/BottomNavigation';
 import WorkoutCard from '../components/ui/WorkoutCard';
 import FloatingActionButton from '../components/ui/FloatingActionButton';
-import { useQuery } from '@apollo/client/react';
+import { useMutation, useQuery } from '@apollo/client/react';
 import ErrorMessage from '../components/ui/ErrorMessage';
 import { GET_FEED, GET_FEED_BY_CATEGORY } from '../../database/graphql/query/feed.js';
 import Dropdown from '../components/ui/Dropdown';
+import { DELETE_FEED_POST } from '../../database/graphql/mutation/feed.js';
 
 function Feed({ onNavigateToNewPost, onNavigateToProfile, onLogout }) {
 	const [activeItem, setActiveItem] = useState('feed');
@@ -15,6 +16,14 @@ function Feed({ onNavigateToNewPost, onNavigateToProfile, onLogout }) {
 	const [selectedCategory, setSelectedCategory] = useState('');
 	const { loading, error, data } = useQuery(selectedCategory ? GET_FEED_BY_CATEGORY : GET_FEED, {
 		variables: selectedCategory ? { category: selectedCategory } : {},
+	});
+	const [deleteFeedPost] = useMutation(DELETE_FEED_POST, {
+		refetchQueries: [
+			{ query: GET_FEED },
+			...(selectedCategory
+				? [{ query: GET_FEED_BY_CATEGORY, variables: { category: selectedCategory } }]
+				: []),
+		],
 	});
 
 	useEffect(() => {
@@ -47,7 +56,9 @@ function Feed({ onNavigateToNewPost, onNavigateToProfile, onLogout }) {
 		}
 	};
 
-	const handleDelete = (id) => {};
+	const handleDelete = (id) => {
+		deleteFeedPost({ variables: { id } });
+	};
 
 	const categoryOptions = [
 		{ value: '', label: 'Todos' },
